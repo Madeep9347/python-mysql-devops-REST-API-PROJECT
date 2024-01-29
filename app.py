@@ -4,12 +4,14 @@ import pymysql
 app = Flask(__name__)
 
 def get_db_connection():
-    connection = pymysql.connect(host='mydb.ct9rghzekszo.eu-central-1.rds.amazonaws.com',  # Replace with your RDS endpoint
-                                 user='dbuser',      # Replace with your RDS username
-                                 password='dbpassword',  # Replace with your RDS password
-                                 db='devprojdb',   # Replace with your database name
-                                 charset='utf8mb4',
-                                 cursorclass=pymysql.cursors.DictCursor)
+    connection = pymysql.connect(
+        host='mydb.ct9rghzekszo.eu-central-1.rds.amazonaws.com',  
+        user='dbuser',      
+        password='dbpassword',  
+        db='devprojdb',   
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
+    )
     return connection
 
 @app.route('/health')
@@ -33,7 +35,11 @@ def create_table():
 
 @app.route('/insert_record', methods=['POST'])
 def insert_record():
-    name = request.json['name']
+    data = request.get_json()
+    if 'name' not in data:
+        return jsonify({'error': 'Name is required'}), 400
+
+    name = data['name']
     connection = get_db_connection()
     cursor = connection.cursor()
     insert_query = "INSERT INTO example_table (name) VALUES (%s)"
